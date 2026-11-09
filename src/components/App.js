@@ -1,11 +1,10 @@
-import React, { useState } from "react";
 
-// Independent sub-component to handle the read more/see less toggle per tour
+import React, { useState, useEffect } from "react";
 
+// Read More / Show Less Component
 const TourDescription = ({ text }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Define character limit threshold
   const characterLimit = 200;
 
   if (text.length <= characterLimit) {
@@ -33,6 +32,8 @@ const TourDescription = ({ text }) => {
 };
 
 const App = () => {
+  const [loading, setLoading] = useState(true);
+
   const [tours, setTours] = useState([
     {
       id: "rec6d6T3q5EBIdCfD",
@@ -71,17 +72,37 @@ const App = () => {
     },
   ]);
 
+  // Simulate loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Delete tour
   const deleteTour = (id) => {
     const freshToursList = tours.filter((tour) => tour.id !== id);
     setTours(freshToursList);
   };
 
+  // Loading condition
+  if (loading) {
+    return (
+      <div style={{ textAlign: "center", marginTop: "2rem" }}>
+        <h2>Loading...</h2>
+      </div>
+    );
+  }
+
+  // No tours condition
   if (tours.length === 0) {
     return (
       <div style={{ textAlign: "center", marginTop: "2rem" }}>
         <h2>No tours left</h2>
-        <button 
-          onClick={() => window.location.reload()} 
+        <button
+          onClick={() => window.location.reload()}
           style={{ padding: "0.5rem 1rem", cursor: "pointer" }}
         >
           Refresh Page
@@ -95,10 +116,16 @@ const App = () => {
       {tours.map((item) => (
         <div key={item.id} className="product-card">
           <p>{item.name}</p>
+
           <img src={item.image} alt={item.name} />
+
           <TourDescription text={item.info} />
+
           <p>Price: ${item.price}</p>
-          <button onClick={() => deleteTour(item.id)}>delete</button>
+
+          <button onClick={() => deleteTour(item.id)}>
+            Delete
+          </button>
         </div>
       ))}
     </div>
